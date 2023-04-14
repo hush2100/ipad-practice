@@ -39,11 +39,14 @@ const searchDelayEls = [...searchWrapEl.querySelectorAll('li')];
 const searchInputEl = searchWrapEl.querySelector('input');
 
 searchStarterEl.addEventListener('click', showSearch)
-searchCloserEl.addEventListener('click', hideSearch)
+searchCloserEl.addEventListener('click', function(event){
+  event.stopPropagation();
+  hideSearch();
+})
 searchShadowEl.addEventListener('click', hideSearch)
 function showSearch(){
   headerEl.classList.add('searching');
-  document.documentElement.classList.add('fixed');
+  playScroll();
   headerMenuEls.reverse().forEach(function(el, index){
     el.style.transitionDelay = index * .4 / headerMenuEls.length + 's';
   })
@@ -56,7 +59,7 @@ function showSearch(){
 }
 function hideSearch(){
   headerEl.classList.remove('searching');
-  document.documentElement.classList.remove('fixed');
+  stopScroll();
   headerMenuEls.reverse().forEach(function(el, index){
     el.style.transitionDelay = index * .4 / headerMenuEls.length + 's';
   })
@@ -66,7 +69,67 @@ function hideSearch(){
   searchDelayEls.reverse();
   searchInputEl.value = '';
 }
+function playScroll(){
+  document.documentElement.classList.remove('fixed');
+}
+function stopScroll(){
+  document.documentElement.classList.add('fixed');
+}
+// 헤더 메뉴 토글 (모바일)
+const menuStarterEl = document.querySelector('header .menu-starter');
+menuStarterEl.addEventListener('click',function(){
+  if(headerEl.classList.contains('menuing')){
+    headerEl.classList.remove('menuing');
+    searchInputEl.value = '';
+    playScroll();
+    
+  }else{
+    headerEl.classList.add('menuing');
+    stopScroll();
+  }
+  
+})
+// 헤더 검색
+const searchTextfieldEl = document.querySelector('.search .textfield');
+const searchCancelEl = document.querySelector('.search .search-canceler');
 
+searchTextfieldEl.addEventListener('click', function(){
+  headerEl.classList.add('searching--mobile');
+  searchInputEl.focus();
+})
+searchCancelEl.addEventListener('click', function(){
+  headerEl.classList.remove('searching--mobile');
+})
+//리사이즈로 남은 클래스 제거 
+window.addEventListener('resize', function(){
+  if(window.innerWidth <= 740){
+    headerEl.classList.remove('searching');
+  }else{
+    headerEl.classList.remove('searching--mobile');
+  }
+})
+//
+const navEl = document.querySelector('nav');
+const navMenuToggleEl = document.querySelector('nav .menu-toggler');
+const navShadowEl = document.querySelector('nav .shadow');
+navMenuToggleEl.addEventListener('click', function(){
+  if(navEl.classList.contains('menuing')){
+    hideNavMenu();
+  }else{
+    showNavMenu();
+  }
+})
+navEl.addEventListener('click', function(event){
+  event.stopPropagation();
+})
+navShadowEl.addEventListener('click', hideNavMenu)
+window.addEventListener('click', hideNavMenu)
+function showNavMenu(){
+  navEl.classList.add('menuing');
+}
+function hideNavMenu(){
+  navEl.classList.remove('menuing');
+}
 //요소의 가시성 관찰
 const io = new IntersectionObserver(function(entries){
   entries.forEach(function(entry){
